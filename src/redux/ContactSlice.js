@@ -15,11 +15,15 @@ export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
 export const addContact = createAsyncThunk('contacts/addContact', async (newContact, { getState }) => {
   try {
     const state = getState();
-    const existingContact = state.contacts.items.find(contact => contact.name && contact.number === newContact.name && newContact.number);
+     const isDuplicate = state.contacts.items.some(
+  (contact) => contact.name.toLowerCase() === newContact.name.toLowerCase() && contact.number === newContact.number
+);
 
-    if (existingContact) {
-      throw new Error('This contact is already exists');
-    }
+      if (!isDuplicate) {
+        state.contacts.push({ id: nanoid(), name, number });
+      } else {
+        alert('Contact already exists.');
+      }
 
     const response = await fetch('https://6556578884b36e3a431f9b89.mockapi.io/contacts', {
       method: 'POST',
@@ -67,10 +71,9 @@ const contactsSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchContacts.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.items = action.payload;
-      })
+      .addCase(addContact.fulfilled, (state, action) => {
+  state.items.push(newContact);
+})
       .addCase(fetchContacts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
@@ -79,14 +82,14 @@ const contactsSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(addContact.rejected, (state, action) => {
-        state.error = action.error.message;
-      })
+  state.error = action.error.message || 'Не вдалося додати контакт';
+})
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.items = state.items.filter((contact) => contact.id !== action.payload);
       })
       .addCase(deleteContact.rejected, (state, action) => {
-        state.error = action.error.message;
-      });
+  state.error = action.error.message || 'Не вдалося видалити контакт';
+});
   },
 });
 
