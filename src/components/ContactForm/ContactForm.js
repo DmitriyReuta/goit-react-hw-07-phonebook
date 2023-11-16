@@ -10,7 +10,7 @@ const validationSchema = Yup.object().shape({
   number: Yup.string().required('Phone number is required'),
 });
 
-export const ContactForm = ({ generateUniqueId }) => {
+export const ContactForm = () => {
   const dispatch = useDispatch();
 
   const handleAddContact = (values, { resetForm }) => {
