@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
-  number: Yup.string().required('Phone number is required'),
+  number: Yup.number().required('Phone number is required'),
 });
 
 export const ContactForm = () => {
