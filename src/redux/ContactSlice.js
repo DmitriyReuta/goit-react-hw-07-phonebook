@@ -12,19 +12,8 @@ export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
   }
 });
 
-export const addContact = createAsyncThunk('contacts/addContact', async (newContact, { getState }) => {
+export const addContact = createAsyncThunk('contacts/addContact', async (newContact) => {
   try {
-    const state = getState();
-     const isDuplicate = state.contacts.items.some(
-  (contact) => contact.name.toLowerCase() === newContact.name.toLowerCase() && contact.number === newContact.number
-);
-
-      if (!isDuplicate) {
-        state.contacts.push({ id: nanoid(), name, number });
-      } else {
-        alert('Contact already exists.');
-      }
-
     const response = await fetch('https://6556578884b36e3a431f9b89.mockapi.io/contacts', {
       method: 'POST',
       headers: {
@@ -32,11 +21,9 @@ export const addContact = createAsyncThunk('contacts/addContact', async (newCont
       },
       body: JSON.stringify(newContact),
     });
-
     if (!response.ok) {
       throw new Error('Failed to add contact');
     }
-
     return response.json();
   } catch (error) {
     throw new Error(error.message);
@@ -71,9 +58,10 @@ const contactsSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(addContact.fulfilled, (state, action) => {
-  state.items.push(newContact);
-})
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
       .addCase(fetchContacts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
@@ -82,14 +70,14 @@ const contactsSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(addContact.rejected, (state, action) => {
-  state.error = action.error.message || 'Не вдалося додати контакт';
-})
+        state.error = action.error.message;
+      })
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.items = state.items.filter((contact) => contact.id !== action.payload);
       })
       .addCase(deleteContact.rejected, (state, action) => {
-  state.error = action.error.message || 'Не вдалося видалити контакт';
-});
+        state.error = action.error.message;
+      });
   },
 });
 
