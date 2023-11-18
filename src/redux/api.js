@@ -15,8 +15,8 @@ export const addContactAPI = async (newContact) => {
     const existingContacts = await fetch('https://6556578884b36e3a431f9b89.mockapi.io/contacts');
     const existingContactsData = await existingContacts.json();
 
-    if (existingContactsData.some(contact => contact.name === newContact.name)) {
-      throw new Error('Contact with this name already exists');
+    if (existingContactsData.some(contact => contact.number === newContact.number)) {
+      throw new Error('Contact is already exists');
     }
 
     const response = await fetch('https://6556578884b36e3a431f9b89.mockapi.io/contacts', {
